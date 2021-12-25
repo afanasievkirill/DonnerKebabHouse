@@ -1,0 +1,1 @@
+export const PASSWORD_DO_NOT_MATCH_ERROR = 'Введенные пароли не совпадают!';
