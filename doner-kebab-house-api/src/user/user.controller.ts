@@ -1,10 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 
-@Controller('users')
-export class UserController {
-
-	@Get()
-	allUser(): string[] {
-		return ['users']
-	}
-}
+@Controller('user')
+export class UserController {}
