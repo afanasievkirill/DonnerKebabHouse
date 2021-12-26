@@ -1,0 +1,1 @@
+export const SUCCESS_AUTHENTICATION = 'Пользователь успешно залогинен!'
