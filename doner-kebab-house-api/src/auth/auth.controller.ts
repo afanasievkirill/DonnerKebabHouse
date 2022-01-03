@@ -1,8 +1,9 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpCode, Post, Req, Res, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, HttpCode, Post, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { UserEntity } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
-import { SUCCESS_AUTHENTICATION } from './auth.constants';
+import { SUCCESS_AUTHENTICATION, SUCCESS_LOGOUT } from './auth.constants';
+import { AuthGuard } from './auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserResponce } from './dto/login-user.response';
@@ -33,9 +34,19 @@ export class AuthController {
 		};
 	}
 
+	@UseGuards(AuthGuard)
 	@Get('admin/user')
 	async getUser(@Req() req: Request): Promise<UserEntity> {
 		const id = await this.userService.getId(req.cookies['jwt']);
 		return await this.userService.findById(id);
+	}
+
+	@UseGuards(AuthGuard)
+	@Post('admin/logout')
+	async logoutUser(@Res({ passthrough: true }) res: Response) {
+		res.clearCookie('jwt')
+		return {
+			message: SUCCESS_LOGOUT
+		}
 	}
 }
