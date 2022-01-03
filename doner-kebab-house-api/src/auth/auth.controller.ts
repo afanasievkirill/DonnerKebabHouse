@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpCode, Post, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, HttpCode, Post, Put, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { UserEntity } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -7,6 +7,8 @@ import { AuthGuard } from './auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserResponce } from './dto/login-user.response';
+import { UpdateUserInfoDto } from './dto/update-user-info.dto';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Controller()
 @UseInterceptors(ClassSerializerInterceptor)
@@ -48,5 +50,25 @@ export class AuthController {
 		return {
 			message: SUCCESS_LOGOUT
 		}
+	}
+
+	@UseGuards(AuthGuard)
+	@Put('admin/user/info')
+	async updateUserInfo(
+		@Req() req: Request,
+		@Body() updateUserDto: UpdateUserInfoDto
+	): Promise<UserEntity> {
+		const id = await this.userService.getId(req.cookies['jwt']);
+		return await this.userService.updateUserInfo(id, updateUserDto);
+	}
+
+	@UseGuards(AuthGuard)
+	@Put('admin/user/password')
+	async updateUserPassword(
+		@Req() req: Request,
+		@Body() updateUserPasswordDto: UpdateUserPasswordDto
+	): Promise<UserEntity> {
+		const id = await this.userService.getId(req.cookies['jwt']);
+		return await this.userService.updateUserPassword(id, updateUserPasswordDto)
 	}
 }
