@@ -18,7 +18,7 @@ export class ProductService {
 	}
 
 	async createProduct(createProductDto: CreateProductDto): Promise<ProductEntity> {
-		const product = await this.findByTitle(createProductDto.title)
+		const product = await this.productRepository.findOne({ title: createProductDto.title })
 		if (product) {
 			throw new UnprocessableEntityException(TITLE_ARE_TAKEN_ERROR);
 		}

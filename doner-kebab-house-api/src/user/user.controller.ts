@@ -10,8 +10,8 @@ export class UserController {
 	constructor(private readonly userService: UserService) { }
 
 	@UseGuards(AuthGuard)
-	@Get('admin/ambassadors')
-	async getAmbassadors(): Promise<UserEntity[]> {
+	@Get('admin/clients')
+	async getClients(): Promise<UserEntity[]> {
 		return await this.userService.find({
 			is_client: true
 		})

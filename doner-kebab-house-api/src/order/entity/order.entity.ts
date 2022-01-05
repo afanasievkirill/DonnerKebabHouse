@@ -5,7 +5,6 @@ import { OrderItemEntity } from "./order-item.entity";
 
 @Entity('orders')
 export class OrderEntity {
-
 	@PrimaryGeneratedColumn()
 	id: number;
 
