@@ -19,7 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "seed:ambassadors": "ts-node src/commands/ambassador.seed.ts",
+    "seed:client": "ts-node src/commands/client.seed.ts",
     "seed:product": "ts-node src/commands/product.seed.ts"
   },
   "dependencies": {

@@ -3,7 +3,6 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
 export class UserEntity {
-
 	@PrimaryGeneratedColumn()
 	id: number;
 
@@ -21,5 +20,5 @@ export class UserEntity {
 	password: string;
 
 	@Column({ default: true })
-	is_ambassador: boolean;
+	is_client: boolean;
 }

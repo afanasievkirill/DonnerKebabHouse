@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AmbassadorUserDto, CreateUserDto } from 'src/auth/dto/create-user.dto';
 import { Repository } from 'typeorm';
-import { PASSWORD_ARE_NOT_VALID_ERROR, PASSWORD_DO_NOT_MATCH_ERROR, USER_NOT_FOUND_ERROR } from './user.constants';
+import { EMAIL_ARE_TAKEN_ERROR, PASSWORD_ARE_NOT_VALID_ERROR, PASSWORD_DO_NOT_MATCH_ERROR, USER_NOT_FOUND_ERROR } from './user.constants';
 import { UserEntity } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -17,6 +17,10 @@ export class UserService {
 	) { }
 
 	async createUser(createUserDto: CreateUserDto | AmbassadorUserDto): Promise<UserEntity> {
+		const currentUser = this.findByEmail(createUserDto.email);
+		if (currentUser) {
+			throw new UnprocessableEntityException(EMAIL_ARE_TAKEN_ERROR);
+		}
 		const { password_confirm, ...newUser } = createUserDto
 		if (createUserDto.password !== password_confirm) {
 			throw new BadRequestException(PASSWORD_DO_NOT_MATCH_ERROR);
@@ -27,7 +31,7 @@ export class UserService {
 			{
 				...newUser,
 				password: hashedPassword,
-				is_ambassador: false
+				is_client: false
 			});
 	}
 

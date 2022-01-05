@@ -4,6 +4,8 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
+import { LinkModule } from './link/link.module';
+import { SharedModule } from './shared/shared.module';
 
 
 @Module({
@@ -22,6 +24,8 @@ import { OrderModule } from './order/order.module';
     UserModule,
     ProductModule,
     OrderModule,
+    LinkModule,
+    SharedModule,
   ],
   controllers: [],
   providers: [],

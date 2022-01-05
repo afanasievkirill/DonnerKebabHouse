@@ -17,7 +17,7 @@ async function bootstrap() {
 			email: faker.internet.email(),
 			password,
 			password_confirm: password,
-			is_ambassador: true
+			is_client: true
 		});
 	};
 

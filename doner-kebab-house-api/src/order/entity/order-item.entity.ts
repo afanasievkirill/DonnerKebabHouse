@@ -4,7 +4,6 @@ import { OrderEntity } from "./order.entity";
 @Entity('order_items')
 export class OrderItemEntity {
 
-
 	@PrimaryGeneratedColumn()
 	id: number;
 
@@ -21,7 +20,7 @@ export class OrderItemEntity {
 	admin_revenue: number;
 
 	@Column()
-	ambassador_revenue: number;
+	client_revenue: number;
 
 	@ManyToOne(() => OrderEntity, orderEntity => orderEntity.order_items)
 	@JoinColumn({ name: 'order_id' })

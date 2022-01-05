@@ -28,5 +28,5 @@ export class CreateUserDto {
 export class AmbassadorUserDto extends CreateUserDto {
 
 	@IsBoolean()
-	is_ambassador: boolean
+	is_client: boolean;
 }
