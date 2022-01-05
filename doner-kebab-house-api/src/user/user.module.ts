@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SharedModule } from 'src/shared/shared.module';
 import { UserController } from './user.controller';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
@@ -8,13 +9,10 @@ import { UserService } from './user.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity]),
-    JwtModule.register({
-      secret: 'test',
-      signOptions: { expiresIn: '1d' }
-    })
+    SharedModule
   ],
   controllers: [UserController],
   providers: [UserService],
-  exports: [UserService, JwtModule]
+  exports: [UserService]
 })
 export class UserModule { }

@@ -10,6 +10,8 @@ export class OrderService {
 	) { }
 
 	async getAllOrders(): Promise<OrderEntity[]> {
-		return await this.orderRepository.find();
+		return await this.orderRepository.find({
+			relations: ['order_items']
+		});
 	}
 }
