@@ -13,7 +13,7 @@ export class UserController {
 	@Get('admin/ambassadors')
 	async getAmbassadors(): Promise<UserEntity[]> {
 		return await this.userService.find({
-			is_ambassador: true
+			is_client: true
 		})
 	}
 }

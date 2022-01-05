@@ -19,7 +19,7 @@ export class OrderEntity {
 	code: string;
 
 	@Column()
-	ambassador_email: string;
+	client_email: string;
 
 	@Exclude()
 	@Column()

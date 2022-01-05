@@ -21,5 +21,5 @@ export class UserEntity {
 	password: string;
 
 	@Column({ default: true })
-	is_ambassador: boolean;
+	is_client: boolean;
 }

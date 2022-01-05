@@ -27,7 +27,7 @@ export class UserService {
 			{
 				...newUser,
 				password: hashedPassword,
-				is_ambassador: false
+				is_client: false
 			});
 	}
 
