@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AmbassadorUserDto, CreateUserDto } from 'src/auth/dto/create-user.dto';
 import { Repository } from 'typeorm';
@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateUserInfoDto } from 'src/auth/dto/update-user-info.dto';
 import { UpdateUserPasswordDto } from 'src/auth/dto/update-user-password.dto';
+import { ADMIN_SCOPE, CLIENT_SCOPE } from 'src/auth/auth.constants';
 
 @Injectable()
 export class UserService {
@@ -16,8 +17,11 @@ export class UserService {
 		private jwtService: JwtService
 	) { }
 
-	async createUser(createUserDto: CreateUserDto | AmbassadorUserDto): Promise<UserEntity> {
-		const currentUser = this.findByEmail(createUserDto.email);
+	async createUser(
+		createUserDto: CreateUserDto | AmbassadorUserDto,
+		isClient: boolean
+	): Promise<UserEntity> {
+		const currentUser = await this.userRepository.findOne({ email: createUserDto.email });
 		if (currentUser) {
 			throw new UnprocessableEntityException(EMAIL_ARE_TAKEN_ERROR);
 		}
@@ -31,7 +35,7 @@ export class UserService {
 			{
 				...newUser,
 				password: hashedPassword,
-				is_client: false
+				is_client: isClient
 			});
 	}
 
@@ -52,16 +56,24 @@ export class UserService {
 	}
 
 	async find(options: any): Promise<UserEntity[]> {
-		return this.userRepository.find(options);
+		return await this.userRepository.find(options);
 	}
 
-	async loginUser(user: UserEntity, dtoPassword: string): Promise<string> {
+	async findOne(options: any): Promise<UserEntity> {
+		return await this.userRepository.findOne(options);
+	}
+
+	async loginUser(user: UserEntity, dtoPassword: string, adminLogin: boolean): Promise<string> {
+		if (user.is_client && adminLogin) {
+			throw new UnauthorizedException()
+		}
 		const validPassword = await bcrypt.compare(dtoPassword, user.password);
 		if (!validPassword) {
 			throw new BadRequestException(PASSWORD_ARE_NOT_VALID_ERROR)
 		};
 		const Jwt = await this.jwtService.signAsync({
-			id: user.id
+			id: user.id,
+			scope: adminLogin ? ADMIN_SCOPE : CLIENT_SCOPE
 		})
 		return Jwt;
 	}

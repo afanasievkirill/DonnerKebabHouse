@@ -18,7 +18,7 @@ async function bootstrap() {
 			password,
 			password_confirm: password,
 			is_client: true
-		});
+		}, true);
 	};
 
 	process.exit();

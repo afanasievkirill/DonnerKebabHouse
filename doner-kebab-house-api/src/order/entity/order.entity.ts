@@ -1,5 +1,6 @@
 import { Exclude, Expose } from "class-transformer";
 import { LinkEntity } from "src/link/link.entity";
+import { UserEntity } from "src/user/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { OrderItemEntity } from "./order-item.entity";
 
@@ -59,14 +60,23 @@ export class OrderEntity {
 	})
 	link: LinkEntity;
 
+	@ManyToOne(() => UserEntity, user => user.orders, {
+		createForeignKeyConstraints: false
+	})
+	user: UserEntity;
+
 	@Expose()
-	get name() {
+	get name(): string {
 		return `${this.first_name} ${this.last_name}`;
 	}
 
 	@Expose()
-	get total() {
+	get total(): number {
 		return this.order_items.reduce((s, i) => s + i.admin_revenue, 0)
+	}
+
+	get client_revenue(): number {
+		return this.order_items.reduce((s, i) => s + i.client_revenue, 0)
 	}
 
 }
