@@ -5,6 +5,7 @@ import { UserService } from 'src/user/user.service';
 import { SUCCESS_AUTHENTICATION, SUCCESS_LOGOUT } from './auth.constants';
 import { AuthGuard } from './auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
+import { GetClientResponse } from './dto/get-client.response';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserResponce } from './dto/login-user.response';
 import { UpdateUserInfoDto } from './dto/update-user-info.dto';
@@ -16,19 +17,25 @@ export class AuthController {
 
 	constructor(private readonly userService: UserService) { }
 
-	@Post('admin/register')
-	async createUser(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
-		return await this.userService.createUser(createUserDto);
+	@Post(['admin/register', 'client/register'])
+	async createUser(
+		@Req() req: Request,
+		@Body() createUserDto: CreateUserDto
+	): Promise<UserEntity> {
+		const isClient = (req.path === '/api/client/register');
+		return await this.userService.createUser(createUserDto, isClient);
 	}
 
-	@Post('admin/login')
+	@Post(['admin/login', 'client/login'])
 	@HttpCode(200)
 	async loginUser(
 		@Body() { email, password }: LoginUserDto,
+		@Req() req: Request,
 		@Res({ passthrough: true }) res: Response
 	): Promise<LoginUserResponce> {
+		const adminLogin = (req.path === '/api/admin/login');
 		const user = await this.userService.findByEmail(email);
-		const jwt = await this.userService.loginUser(user, password);
+		const jwt = await this.userService.loginUser(user, password, adminLogin);
 		res.cookie('jwt', jwt, { httpOnly: true })
 		return {
 			message: SUCCESS_AUTHENTICATION,
@@ -37,14 +44,25 @@ export class AuthController {
 	}
 
 	@UseGuards(AuthGuard)
-	@Get('admin/user')
-	async getUser(@Req() req: Request): Promise<UserEntity> {
+	@Get(['admin/user', 'client/user'])
+	async getUser(@Req() req: Request): Promise<UserEntity | GetClientResponse> {
 		const id = await this.userService.getId(req.cookies['jwt']);
-		return await this.userService.findById(id);
+		if (req.path === '/api/admin/user') {
+			return await this.userService.findById(id);
+		}
+		const client = await this.userService.findOne({
+			id,
+			relations: ['orders', 'orders.order_items']
+		});
+		const { orders, password, ...data } = client
+		return {
+			...data,
+			revenue: client.revenue
+		};
 	}
 
 	@UseGuards(AuthGuard)
-	@Post('admin/logout')
+	@Post(['admin/logout', 'client/logout'])
 	async logoutUser(@Res({ passthrough: true }) res: Response) {
 		res.clearCookie('jwt')
 		return {
@@ -53,7 +71,7 @@ export class AuthController {
 	}
 
 	@UseGuards(AuthGuard)
-	@Put('admin/user/info')
+	@Put(['admin/user/info', 'client/user/info'])
 	async updateUserInfo(
 		@Req() req: Request,
 		@Body() updateUserDto: UpdateUserInfoDto
@@ -63,7 +81,7 @@ export class AuthController {
 	}
 
 	@UseGuards(AuthGuard)
-	@Put('admin/user/password')
+	@Put(['admin/user/password', 'client/user/password'])
 	async updateUserPassword(
 		@Req() req: Request,
 		@Body() updateUserPasswordDto: UpdateUserPasswordDto
