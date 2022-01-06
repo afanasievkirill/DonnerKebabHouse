@@ -51,7 +51,7 @@ export class AuthController {
 			return await this.userService.findById(id);
 		}
 		const client = await this.userService.findOne({
-			id,
+			where: { id },
 			relations: ['orders', 'orders.order_items']
 		});
 		const { orders, password, ...data } = client
