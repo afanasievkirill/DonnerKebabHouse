@@ -1,4 +1,4 @@
-import { Body, CacheInterceptor, CacheKey, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Post, Put, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, CacheInterceptor, CacheKey, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Post, Put, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -7,6 +7,7 @@ import { ProductEntity } from './product.entity';
 import { ProductService } from './product.service';
 import { Cache } from 'cache-manager';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Request } from 'express';
 
 @Controller()
 export class ProductController {
@@ -73,8 +74,10 @@ export class ProductController {
 	}
 
 	@Get('client/products/backend')
-	async getProductsToBackend(): Promise<any> {
-		let products = await this.cacheManager.get(PRODUCT_BACKEND_CASH_KEY);
+	async getProductsToBackend(
+		@Req() request: Request
+	): Promise<ProductEntity[]> {
+		let products = await this.cacheManager.get<ProductEntity[]>(PRODUCT_BACKEND_CASH_KEY);
 		if (!products) {
 			products = await this.productService.getAllProducts()
 			console.log(products)
@@ -83,6 +86,21 @@ export class ProductController {
 				products,
 				{ ttl: 30 * 60 }
 			);
+		}
+		if (request.query.s) {
+			const s = request.query.s.toString().toLowerCase();
+			products = products.filter(
+				p => p.title.toLowerCase().indexOf(s) >= 0 ||
+					p.description.toLowerCase().indexOf(s) >= 0
+			);
+		}
+		if (request.query.sort === 'asc' || request.query.sort === 'desc') {
+			products.sort((a, b) => {
+				const diff = a.price - b.price;
+				if (diff === 0) return 0;
+				const sign = Math.abs(diff) / diff;
+				return request.query.sort === 'asc' ? sign : -sign;
+			})
 		}
 		return products;
 
