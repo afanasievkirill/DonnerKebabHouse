@@ -1,8 +1,8 @@
-import { Exclude, Expose } from "class-transformer";
-import { LinkEntity } from "src/link/link.entity";
-import { UserEntity } from "src/user/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { OrderItemEntity } from "./order-item.entity";
+import { Exclude, Expose } from 'class-transformer';
+import { LinkEntity } from 'src/link/link.entity';
+import { UserEntity } from 'src/user/user.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { OrderItemEntity } from './order-item.entity';
 
 @Entity('orders')
 export class OrderEntity {
@@ -33,7 +33,7 @@ export class OrderEntity {
 	email: string;
 
 	@Column({ nullable: true })
-	address: string
+	address: string;
 
 	@Column({ nullable: true })
 	country: string;
@@ -48,20 +48,20 @@ export class OrderEntity {
 	@Column({ default: false })
 	complete: boolean;
 
-	@OneToMany(() => OrderItemEntity, ordetItemEntity => ordetItemEntity.order)
+	@OneToMany(() => OrderItemEntity, (ordetItemEntity) => ordetItemEntity.order)
 	order_items: OrderItemEntity[];
 
-	@ManyToOne(() => LinkEntity, link => link.orders, {
-		createForeignKeyConstraints: false
+	@ManyToOne(() => LinkEntity, (link) => link.orders, {
+		createForeignKeyConstraints: false,
 	})
 	@JoinColumn({
 		referencedColumnName: 'code',
-		name: 'code'
+		name: 'code',
 	})
 	link: LinkEntity;
 
-	@ManyToOne(() => UserEntity, user => user.orders, {
-		createForeignKeyConstraints: false
+	@ManyToOne(() => UserEntity, (user) => user.orders, {
+		createForeignKeyConstraints: false,
 	})
 	user: UserEntity;
 
@@ -72,11 +72,10 @@ export class OrderEntity {
 
 	@Expose()
 	get total(): number {
-		return this.order_items.reduce((s, i) => s + i.admin_revenue, 0)
+		return this.order_items.reduce((s, i) => s + i.admin_revenue, 0);
 	}
 
 	get client_revenue(): number {
-		return this.order_items.reduce((s, i) => s + i.client_revenue, 0)
+		return this.order_items.reduce((s, i) => s + i.client_revenue, 0);
 	}
-
 }

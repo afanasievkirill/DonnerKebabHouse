@@ -5,16 +5,11 @@ import { LinkService } from './link.service';
 
 @Controller('link')
 export class LinkController {
-
-	constructor(
-		private readonly linkService: LinkService
-	) { }
+	constructor(private readonly linkService: LinkService) {}
 
 	@UseGuards(AuthGuard)
 	@Get('admin/users/:id/links')
-	async getAllLinks(
-		@Param('id') id: number
-	): Promise<LinkEntity[]> {
+	async getAllLinks(@Param('id') id: number): Promise<LinkEntity[]> {
 		return await this.linkService.getAllLinkByUserId(id);
 	}
 }

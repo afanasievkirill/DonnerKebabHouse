@@ -1,7 +1,6 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsBoolean, IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateUserDto {
-
 	@IsNotEmpty()
 	@IsString()
 	first_name: string;
@@ -22,11 +21,9 @@ export class CreateUserDto {
 	@IsNotEmpty()
 	@IsString()
 	password_confirm: string;
-
 }
 
 export class AmbassadorUserDto extends CreateUserDto {
-
 	@IsBoolean()
 	is_client: boolean;
 }

@@ -1,4 +1,16 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpCode, Post, Put, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+	Body,
+	ClassSerializerInterceptor,
+	Controller,
+	Get,
+	HttpCode,
+	Post,
+	Put,
+	Req,
+	Res,
+	UseGuards,
+	UseInterceptors,
+} from '@nestjs/common';
 import { Response, Request } from 'express';
 import { UserEntity } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -14,15 +26,11 @@ import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 @Controller()
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
-
-	constructor(private readonly userService: UserService) { }
+	constructor(private readonly userService: UserService) {}
 
 	@Post(['admin/register', 'client/register'])
-	async createUser(
-		@Req() req: Request,
-		@Body() createUserDto: CreateUserDto
-	): Promise<UserEntity> {
-		const isClient = (req.path === '/api/client/register');
+	async createUser(@Req() req: Request, @Body() createUserDto: CreateUserDto): Promise<UserEntity> {
+		const isClient = req.path === '/api/client/register';
 		return await this.userService.createUser(createUserDto, isClient);
 	}
 
@@ -31,15 +39,15 @@ export class AuthController {
 	async loginUser(
 		@Body() { email, password }: LoginUserDto,
 		@Req() req: Request,
-		@Res({ passthrough: true }) res: Response
+		@Res({ passthrough: true }) res: Response,
 	): Promise<LoginUserResponce> {
-		const adminLogin = (req.path === '/api/admin/login');
+		const adminLogin = req.path === '/api/admin/login';
 		const user = await this.userService.findByEmail(email);
 		const jwt = await this.userService.loginUser(user, password, adminLogin);
-		res.cookie('jwt', jwt, { httpOnly: true })
+		res.cookie('jwt', jwt, { httpOnly: true });
 		return {
 			message: SUCCESS_AUTHENTICATION,
-			jwt
+			jwt,
 		};
 	}
 
@@ -52,29 +60,29 @@ export class AuthController {
 		}
 		const client = await this.userService.findOne({
 			where: { id },
-			relations: ['orders', 'orders.order_items']
+			relations: ['orders', 'orders.order_items'],
 		});
-		const { orders, password, ...data } = client
+		const { orders, password, ...data } = client;
 		return {
 			...data,
-			revenue: client.revenue
+			revenue: client.revenue,
 		};
 	}
 
 	@UseGuards(AuthGuard)
 	@Post(['admin/logout', 'client/logout'])
 	async logoutUser(@Res({ passthrough: true }) res: Response) {
-		res.clearCookie('jwt')
+		res.clearCookie('jwt');
 		return {
-			message: SUCCESS_LOGOUT
-		}
+			message: SUCCESS_LOGOUT,
+		};
 	}
 
 	@UseGuards(AuthGuard)
 	@Put(['admin/user/info', 'client/user/info'])
 	async updateUserInfo(
 		@Req() req: Request,
-		@Body() updateUserDto: UpdateUserInfoDto
+		@Body() updateUserDto: UpdateUserInfoDto,
 	): Promise<UserEntity> {
 		const id = await this.userService.getId(req.cookies['jwt']);
 		return await this.userService.updateUserInfo(id, updateUserDto);
@@ -84,9 +92,9 @@ export class AuthController {
 	@Put(['admin/user/password', 'client/user/password'])
 	async updateUserPassword(
 		@Req() req: Request,
-		@Body() updateUserPasswordDto: UpdateUserPasswordDto
+		@Body() updateUserPasswordDto: UpdateUserPasswordDto,
 	): Promise<UserEntity> {
 		const id = await this.userService.getId(req.cookies['jwt']);
-		return await this.userService.updateUserPassword(id, updateUserPasswordDto)
+		return await this.userService.updateUserPassword(id, updateUserPasswordDto);
 	}
 }

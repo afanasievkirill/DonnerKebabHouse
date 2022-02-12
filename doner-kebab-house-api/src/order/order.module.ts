@@ -8,14 +8,8 @@ import { OrderItemService } from './order-item.service';
 import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([OrderEntity, OrderItemEntity]),
-    SharedModule
-  ],
-  providers: [
-    OrderService,
-    OrderItemService
-  ],
-  controllers: [OrderController]
+	imports: [TypeOrmModule.forFeature([OrderEntity, OrderItemEntity]), SharedModule],
+	providers: [OrderService, OrderItemService],
+	controllers: [OrderController],
 })
-export class OrderModule { }
+export class OrderModule {}

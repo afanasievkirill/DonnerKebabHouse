@@ -6,12 +6,12 @@ import { OrderEntity } from './entity/order.entity';
 @Injectable()
 export class OrderService {
 	constructor(
-		@InjectRepository(OrderEntity) private readonly orderRepository: Repository<OrderEntity>
-	) { }
+		@InjectRepository(OrderEntity) private readonly orderRepository: Repository<OrderEntity>,
+	) {}
 
 	async getAllOrders(): Promise<OrderEntity[]> {
 		return await this.orderRepository.find({
-			relations: ['order_items']
+			relations: ['order_items'],
 		});
 	}
 }

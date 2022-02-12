@@ -9,8 +9,8 @@ import { LinkEntity } from './link.entity';
 export class LinkService {
 	constructor(
 		@InjectRepository(LinkEntity) private readonly linkRepository: Repository<LinkEntity>,
-		private readonly userService: UserService
-	) { }
+		private readonly userService: UserService,
+	) {}
 
 	async getAllLinkByUserId(id: number): Promise<LinkEntity[]> {
 		const user = await this.userService.findById(id);
@@ -19,7 +19,7 @@ export class LinkService {
 		}
 		return await this.linkRepository.find({
 			where: { user: id },
-			relations: ['orders', 'orders.order_items']
+			relations: ['orders', 'orders.order_items'],
 		});
 	}
 }

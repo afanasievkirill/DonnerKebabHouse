@@ -6,19 +6,14 @@ import * as redisStore from 'cache-manager-redis-store';
 	imports: [
 		JwtModule.register({
 			secret: 'test',
-			signOptions: { expiresIn: '1d' }
+			signOptions: { expiresIn: '1d' },
 		}),
 		CacheModule.register({
 			store: redisStore,
 			host: 'localhost',
 			port: 6379,
-		})
+		}),
 	],
-	exports: [
-		JwtModule,
-		CacheModule
-	]
+	exports: [JwtModule, CacheModule],
 })
-export class SharedModule {
-
-}
+export class SharedModule {}

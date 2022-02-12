@@ -7,14 +7,8 @@ import { ProductEntity } from './product.entity';
 import { ProductService } from './product.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([ProductEntity]),
-    SharedModule
-  ],
-  controllers: [ProductController],
-  providers: [
-    ProductService,
-    ProductListener
-  ]
+	imports: [TypeOrmModule.forFeature([ProductEntity]), SharedModule],
+	controllers: [ProductController],
+	providers: [ProductService, ProductListener],
 })
-export class ProductModule { }
+export class ProductModule {}

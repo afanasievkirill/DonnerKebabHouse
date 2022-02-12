@@ -1,8 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException,
+	UnauthorizedException,
+	UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AmbassadorUserDto, CreateUserDto } from 'src/auth/dto/create-user.dto';
 import { Repository } from 'typeorm';
-import { EMAIL_ARE_TAKEN_ERROR, PASSWORD_ARE_NOT_VALID_ERROR, PASSWORD_DO_NOT_MATCH_ERROR, USER_NOT_FOUND_ERROR } from './user.constants';
+import {
+	EMAIL_ARE_TAKEN_ERROR,
+	PASSWORD_ARE_NOT_VALID_ERROR,
+	PASSWORD_DO_NOT_MATCH_ERROR,
+	USER_NOT_FOUND_ERROR,
+} from './user.constants';
 import { UserEntity } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -14,36 +25,35 @@ import { ADMIN_SCOPE, CLIENT_SCOPE } from 'src/auth/auth.constants';
 export class UserService {
 	constructor(
 		@InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
-		private jwtService: JwtService
-	) { }
+		private jwtService: JwtService,
+	) {}
 
 	async createUser(
 		createUserDto: CreateUserDto | AmbassadorUserDto,
-		isClient: boolean
+		isClient: boolean,
 	): Promise<UserEntity> {
 		const currentUser = await this.userRepository.findOne({ email: createUserDto.email });
 		if (currentUser) {
 			throw new UnprocessableEntityException(EMAIL_ARE_TAKEN_ERROR);
 		}
-		const { password_confirm, ...newUser } = createUserDto
+		const { password_confirm, ...newUser } = createUserDto;
 		if (createUserDto.password !== password_confirm) {
 			throw new BadRequestException(PASSWORD_DO_NOT_MATCH_ERROR);
 		}
 		const hashedPassword = await bcrypt.hash(createUserDto.password, 12);
 
-		return await this.userRepository.save(
-			{
-				...newUser,
-				password: hashedPassword,
-				is_client: isClient
-			});
+		return await this.userRepository.save({
+			...newUser,
+			password: hashedPassword,
+			is_client: isClient,
+		});
 	}
 
 	async findByEmail(email: string): Promise<UserEntity> {
 		const user = await this.userRepository.findOne({ email });
 		if (!user) {
 			throw new NotFoundException(USER_NOT_FOUND_ERROR);
-		};
+		}
 		return user;
 	}
 
@@ -51,7 +61,7 @@ export class UserService {
 		const user = await this.userRepository.findOne({ id });
 		if (!user) {
 			throw new NotFoundException(USER_NOT_FOUND_ERROR);
-		};
+		}
 		return user;
 	}
 
@@ -65,37 +75,34 @@ export class UserService {
 
 	async loginUser(user: UserEntity, dtoPassword: string, adminLogin: boolean): Promise<string> {
 		if (user.is_client && adminLogin) {
-			throw new UnauthorizedException()
+			throw new UnauthorizedException();
 		}
 		const validPassword = await bcrypt.compare(dtoPassword, user.password);
 		if (!validPassword) {
-			throw new BadRequestException(PASSWORD_ARE_NOT_VALID_ERROR)
-		};
+			throw new BadRequestException(PASSWORD_ARE_NOT_VALID_ERROR);
+		}
 		const Jwt = await this.jwtService.signAsync({
 			id: user.id,
-			scope: adminLogin ? ADMIN_SCOPE : CLIENT_SCOPE
-		})
+			scope: adminLogin ? ADMIN_SCOPE : CLIENT_SCOPE,
+		});
 		return Jwt;
 	}
 
-	async updateUserInfo(
-		id: number,
-		updateUserInfoDto: UpdateUserInfoDto
-	): Promise<UserEntity> {
+	async updateUserInfo(id: number, updateUserInfoDto: UpdateUserInfoDto): Promise<UserEntity> {
 		await this.userRepository.update(id, updateUserInfoDto);
 		return this.findById(id);
 	}
 
 	async updateUserPassword(
 		id: number,
-		updateUserPasswordDto: UpdateUserPasswordDto
+		updateUserPasswordDto: UpdateUserPasswordDto,
 	): Promise<UserEntity> {
 		if (updateUserPasswordDto.password !== updateUserPasswordDto.password_confirm) {
 			throw new BadRequestException(PASSWORD_DO_NOT_MATCH_ERROR);
 		}
 		await this.userRepository.update(id, {
-			password: await bcrypt.hash(updateUserPasswordDto.password, 12)
-		})
+			password: await bcrypt.hash(updateUserPasswordDto.password, 12),
+		});
 		return this.findById(id);
 	}
 
@@ -103,5 +110,4 @@ export class UserService {
 		const { id } = await this.jwtService.verifyAsync(jwt);
 		return id;
 	}
-
 }
